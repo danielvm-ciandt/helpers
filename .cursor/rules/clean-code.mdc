@@ -1,0 +1,280 @@
+---
+description: "Clean Code standards (R.C. Martin): naming, functions, tests, error handling, classes, and smell catalog. Apply when writing, reviewing, or refactoring any code."
+globs:
+alwaysApply: true
+---
+
+# Clean Code Operating Manual
+
+Distilled from *Clean Code: A Handbook of Agile Software Craftsmanship* (Robert C. Martin, 2008).
+This is the standard applied when writing, reviewing, or refactoring any code.
+
+---
+
+## 0. Core Commitments
+
+1. **Leave it cleaner.** Every touch must leave the module measurably better: names clearer, functions smaller, duplication lower, tests greener. The Boy Scout Rule is not optional.
+2. **Optimize for the reader.** Code is read ten times more than it is written. The next human is the customer.
+3. **Prefer deletion.** Dead code, commented-out code, speculative generality, and "just-in-case" abstractions must go.
+4. **No broken windows.** Do not produce or accept code with known smells, skipped tests, magic numbers, failing lints, or unlinked `TODO`s.
+5. **Name it or don't build it.** If you cannot give a concept a precise name, you do not understand it well enough to code it.
+
+---
+
+## 1. Workflow
+
+Every non-trivial change follows these phases in order. Do not skip or collapse them.
+
+### Specify
+- Restate the intent in one paragraph of plain prose before touching any code.
+- List inputs, outputs, invariants, error modes, and explicit non-goals.
+- Write acceptance criteria as testable statements: *Given … When … Then …*
+- Flag every ambiguity. Do not guess.
+
+### Design
+- Draw the module boundary first: public surface, private internals, dependency direction.
+- Choose the simplest data structures that satisfy the spec. Resist frameworks until they earn their place.
+- Apply SRP before writing a single class: one class, one reason to change.
+- Name every concept before coding it.
+
+### Test First (Red → Green → Refactor)
+- Write the failing test before any production code — the Three Laws of TDD.
+- One concept per test. Tests are the living specification.
+- Cover boundary conditions before implementing the happy path.
+
+### Implement
+- Make it work. Then make it right. Then, only if measured, make it fast. Never simultaneously.
+- Keep the build green on every save.
+
+### Refactor
+- After green: collapse duplication, rename for clarity, shorten functions, restore the step-down reading order.
+- Run the full test suite after every structural change.
+
+### Review Against the Spec
+- Walk every acceptance criterion and cite the test that proves it.
+- Name what was deliberately *not* built and why.
+- Surface any new tech debt created and file it.
+
+---
+
+## 2. Names (Chapter 2)
+
+- **Intention-revealing.** A name answers: what is this, why does it exist, how is it used. `elapsedTimeInDays`, not `d`.
+- **No disinformation.** Do not call a linked-list a `List` if it isn't one. Never use `l`, `O`, or `I` as identifiers.
+- **Meaningful distinctions.** `a1/a2` and `ProductInfo/ProductData` are noise, not names.
+- **Pronounceable.** If you cannot say it in a code review, rename it.
+- **Searchable.** Single-letter names and numeric constants are unsearchable. The longer the scope, the longer the name must be.
+- **No encodings.** No Hungarian notation, no member prefixes (`m_`), no type suffixes in modern typed languages.
+- **Classes are nouns; methods are verbs.** `Customer`, `HtmlParser`; `save()`, `deletePage()`, `isPosted()`.
+- **One word per concept.** Pick `fetch`, `get`, or `retrieve` — use it everywhere, consistently.
+- **Add meaningful context; remove gratuitous context.** `firstName` inside a `Customer` class needs no `customerFirstName` prefix.
+- **Describe side effects.** `createOrReturnExistingSession()` beats `getSession()` if the function mutates state.
+
+---
+
+## 3. Functions (Chapter 3)
+
+- **Small. Then smaller.** Target ≤ 20 lines; aim for 4–8.
+- **Do one thing.** A function does one thing when no further function can be extracted from it at a meaningfully lower level of abstraction.
+- **One level of abstraction per function.** Mixing high-level policy with low-level string manipulation is the most pervasive smell.
+- **Step-down rule.** Every function is followed by the functions it calls.
+- **Argument count:** niladic (0) ideal; monadic (1) fine; dyadic (2) requires thought; triadic (3) warning sign; polyadic (4+) must be justified — wrap into a parameter object.
+- **No flag arguments.** `render(true)` signals a function doing two things. Split it.
+- **No output arguments.** Return a value or mutate `this`.
+- **Command–Query Separation.** A function either *does* something or *answers* something. Never both.
+- **Prefer exceptions to error codes.** Extract try/catch bodies into their own functions.
+- **DRY.** Every piece of knowledge has one authoritative home.
+
+---
+
+## 4. Comments (Chapter 4)
+
+**The rule:** every comment is an apology for code that fails to express itself. Fix the code first.
+
+**Acceptable:** legal headers, intent behind a non-obvious decision, warnings of non-obvious consequences, `TODO` with a ticket ID, public API docstrings.
+
+**Never acceptable:** redundant narration, commented-out code, journal entries, closing-brace markers, any comment that has drifted out of sync.
+
+---
+
+## 5. Formatting (Chapter 5)
+
+- **Newspaper metaphor.** High-level purpose first; detail accumulates as you scroll down.
+- **Vertical openness between concepts.** Blank lines separate distinct thoughts.
+- **Vertical distance.** Variables live near their use.
+- **Horizontal width.** Target ≤ 100 columns; hard cap at 120.
+- **No horizontal alignment.** Aligning declarations in columns becomes noise.
+- **Team consistency over personal preference.**
+
+---
+
+## 6. Objects and Data Structures (Chapters 6 & 8)
+
+- **Objects** hide data and expose behavior. **Data structures** expose data and have no meaningful behavior. Do not build hybrids.
+- **Law of Demeter.** Do not call methods on objects *returned* by other calls (`a.getB().getC().doSomething()` violates this).
+- **Wrap third-party APIs.** Define your own interface; call the vendor through it.
+
+---
+
+## 7. Error Handling (Chapter 7)
+
+- **Exceptions over return codes.**
+- **Write the try-catch first.** Define the scope of failure before writing the happy path.
+- **Provide context.** Every thrown exception carries: the operation that failed, the relevant inputs, and the failure mode.
+- **Do not return `null`.** Return an empty collection, a Null Object, or an `Optional`.
+- **Do not pass `null`.** Treat null as a bug at every boundary.
+
+---
+
+## 8. Unit Tests (Chapter 9)
+
+**The Three Laws of TDD:**
+1. Do not write production code without a failing test.
+2. Do not write more of a test than is needed to fail.
+3. Do not write more production code than is needed to make the failing test pass.
+
+**Standards:**
+- **Test code is first-class.** Maintained and reviewed with the same rigor as production code.
+- **One concept per test.** Minimize the number of asserts per test.
+- **Arrange–Act–Assert.** The three phases must be visually distinct.
+- **F.I.R.S.T.** Fast, Independent, Repeatable, Self-validating, Timely.
+- **Test boundary conditions exhaustively.** Bugs cluster at boundaries.
+- **Never ignore a failing test** to unblock a release.
+
+---
+
+## 9. Classes (Chapter 10)
+
+- **Small.** Measure by responsibilities, not lines. If you describe the class using "and", split it.
+- **Single Responsibility Principle.** One class, one reason to change.
+- **High cohesion.** Methods and instance variables should be tightly coupled to each other.
+- **Open-Closed Principle.** Extend behavior by adding new classes; do not edit stable ones.
+- **Dependency Inversion.** Depend on abstractions, not concretions. Inject dependencies.
+
+---
+
+## 10. Systems (Chapter 11)
+
+- **Separate construction from use.** The object graph is built in `main` or a DI container; the rest of the system receives dependencies.
+- **Postpone decisions to the last responsible moment.**
+- **Grow architecture in the direction of need.** Invest in complexity only when the spec demands it.
+
+---
+
+## 11. Emergence — Kent Beck's Four Rules (Chapter 12)
+
+A design is clean enough when, in priority order, it:
+
+1. **Runs all the tests.**
+2. **Contains no duplication.**
+3. **Expresses the intent of the programmer.**
+4. **Minimizes the number of classes and methods.**
+
+---
+
+## 12. Code Smells — Full Catalog (Chapter 17)
+
+### Comments
+| Code | Smell |
+|------|-------|
+| C1 | Inappropriate information |
+| C2 | Obsolete comment |
+| C3 | Redundant comment |
+| C4 | Poorly written comment |
+| C5 | Commented-out code |
+
+### Functions
+| Code | Smell |
+|------|-------|
+| F1 | Too many arguments |
+| F2 | Output arguments |
+| F3 | Flag arguments |
+| F4 | Dead function |
+
+### General
+| Code | Smell |
+|------|-------|
+| G1 | Multiple languages in one source file |
+| G2 | Obvious behavior is unimplemented |
+| G3 | Incorrect behavior at the boundaries |
+| G4 | Overridden safeties |
+| G5 | Duplication |
+| G6 | Code at wrong level of abstraction |
+| G7 | Base class depends on its derivatives |
+| G8 | Too much information |
+| G9 | Dead code |
+| G10 | Vertical separation |
+| G11 | Inconsistency |
+| G12 | Clutter |
+| G13 | Artificial coupling |
+| G14 | Feature envy |
+| G15 | Selector arguments |
+| G16 | Obscured intent |
+| G17 | Misplaced responsibility |
+| G18 | Inappropriate static |
+| G19 | Use explanatory variables |
+| G20 | Function names do not say what they do |
+| G21 | Failure to understand the algorithm |
+| G22 | Logical dependency not made physical |
+| G23 | Prefer polymorphism to if/else or switch/case |
+| G24 | Follow standard conventions |
+| G25 | Magic numbers not replaced by named constants |
+| G26 | Imprecision |
+| G27 | Structure over convention |
+| G28 | Unencapsulated conditional |
+| G29 | Negative conditionals |
+| G30 | Functions doing more than one thing |
+| G31 | Hidden temporal coupling |
+| G32 | Arbitrary decisions |
+| G33 | Unencapsulated boundary condition |
+| G34 | Functions that descend more than one level of abstraction |
+| G35 | Configurable data buried deep in the system |
+| G36 | Transitive navigation (Law of Demeter violations) |
+
+### Names
+| Code | Smell |
+|------|-------|
+| N1 | Non-descriptive name |
+| N2 | Name at the wrong level of abstraction |
+| N3 | Standard nomenclature not used |
+| N4 | Unambiguous name that could mean two things |
+| N5 | Short name in a long scope |
+| N6 | Encoding in the name |
+| N7 | Name that hides a side effect |
+
+### Tests
+| Code | Smell |
+|------|-------|
+| T1 | Insufficient tests |
+| T2 | No coverage tool in use |
+| T3 | Trivial tests skipped |
+| T4 | Ignored test without a linked open question |
+| T5 | Boundary conditions not tested |
+| T6 | Near-bugs not tested exhaustively |
+| T7 | Patterns of failure ignored |
+| T8 | Test coverage patterns ignored |
+| T9 | Slow tests |
+
+---
+
+## 13. Definition of Done
+
+Every change is complete only when all of the following are true:
+
+- [ ] Intent restated in prose; acceptance criteria written as Given/When/Then statements.
+- [ ] Every acceptance criterion has a passing, named automated test.
+- [ ] All tests satisfy F.I.R.S.T.
+- [ ] No function violates the size, argument-count, or abstraction-level rules.
+- [ ] No class violates SRP.
+- [ ] Zero duplication, zero magic numbers, zero dead code, zero commented-out code.
+- [ ] Every name survives scrutiny against the naming rules.
+- [ ] Public API has docstrings; internals are silent unless justified.
+- [ ] Error handling uses exceptions; `null` is neither returned nor accepted across any boundary.
+- [ ] Every third-party boundary is wrapped; vendor types do not leak into the domain.
+- [ ] The build is one command. The tests are one command.
+- [ ] Lint, formatter, and type-checker pass with zero warnings suppressed.
+- [ ] New tech debt is named, documented, and filed.
+
+---
+
+*"Clean code always looks like it was written by someone who cares."*
