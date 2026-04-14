@@ -63,23 +63,21 @@ Pick exactly **one** type from the table. This directly controls what
 ## Step 3 · Determine the Scope
 
 The scope is **one kebab-case word** naming the module, package, or domain area
-changed. Use these mappings for this repo:
+changed. Use the table below as a starting point and customize it for your
+project's structure:
 
 | Files / area changed | Scope |
 |----------------------|-------|
-| `server/` routes, middleware | `api` |
-| `server/` auth logic | `auth` |
-| `server/` services or orchestration | `services` |
-| `ui/` components, pages | `ui` |
-| `ui/` routing | `routes` |
-| `packages/db/` schema, migrations | `db` |
-| `packages/shared/` types, validators | `shared` |
-| `packages/adapters/` | `adapters` |
-| `packages/plugins/` | `plugins` |
-| `.github/workflows/` | `ci` |
-| `package.json`, `pnpm-lock.yaml`, `tsconfig` | `build` |
-| `.releaserc`, `semantic-release` config | `release` |
-| `doc/`, `README` | `docs` |
+| Authentication logic | `auth` |
+| API routes, middleware | `api` |
+| Database schema, migrations | `db` |
+| Shared types, validators | `shared` |
+| UI components, pages | `ui` |
+| Routing | `routes` |
+| CI/CD config (GitHub Actions, etc.) | `ci` |
+| Build tooling, dependencies, tsconfig | `build` |
+| Release config (semantic-release, etc.) | `release` |
+| Documentation, README | `docs` |
 | Entire codebase / cross-cutting | *(omit scope)* |
 
 ---
@@ -230,4 +228,5 @@ git push origin feat/node-24
 4. **Scope is required** unless the change is truly cross-cutting.
 5. **One logical change per commit** — if the diff contains multiple unrelated changes, produce multiple commit commands, each staging only its own files.
 6. **Breaking changes need both `!` and the footer** — one alone is not enough for semantic-release to trigger a major bump.
-7. **Ask before adding dependencies** — the project uses pnpm and has a controlled allow-list.
+
+> For bug-fix commits, @bug-fix.mdc Phase 7 generates the full commit block automatically — follow the same Hard Rules above.

@@ -1,0 +1,92 @@
+---
+description: Agent execution mindset, search-first discipline, GitHub PR inspection, and prohibited actions for every session.
+alwaysApply: true
+---
+
+# Agent Behavior & Execution Discipline
+
+Inspired by Elementor Engineering's Cursor rules best practices.
+Always reply with **"Applying rules: [list]"** at the start of each response so the user can verify compliance.
+
+---
+
+## Critical Partner Mindset
+
+- **Never affirm blindly.** Do not agree with a statement just because the user said it. Question assumptions, offer counterpoints, test reasoning. Prioritize truth over agreement.
+- **Flag risks directly.** If you see a flaw, a better approach, or a hidden edge case, say so immediately — do not sugarcoat to please.
+- **Be honest about uncertainty.** If something is unclear or you lack context, say so and search rather than guess.
+
+---
+
+## Execution Sequence
+
+Follow this order on every non-trivial task:
+
+1. **SEARCH FIRST** — Use `codebase_search`, `grep`, or file reads until you find similar functionality or confirm none exists. Be 100% sure before implementing anything new.
+2. **REUSE FIRST** — Check existing functions, hooks, utilities, and patterns. Extend before creating. Aim for the smallest possible diff.
+3. **NO ASSUMPTIONS** — Only act on: files you have read, explicit user messages, and tool results. Missing context? Search, then ask.
+4. **CHALLENGE IDEAS** — Surface flaws and risks before coding. One direct sentence beats silent compliance.
+5. **LOG CHECK** — After implementing changes or debugging, inspect relevant logs (browser console, server output, CI) for errors.
+6. **SELF-CHECK** — In long conversations, periodically re-read this rules file to stay compliant. Remind the user to say "read the rules again" if drift is suspected.
+
+---
+
+## Coding Standards
+
+- **Plan before coding.** For non-trivial changes, state the approach in one paragraph before touching any file.
+- **No code comments** unless the logic is genuinely non-obvious (see @clean-code.mdc).
+- **Keep imports alphabetically sorted.**
+- **SOLID but simple** — separation of concerns without over-engineering.
+- **Files under 300 lines** — split when it improves clarity, not just to hit the limit.
+- **Tests for critical paths only.** Use AAA (Arrange–Act–Assert) pattern. Learn from existing test examples in the repo.
+- After code changes, run the project's lint and type-check commands.
+
+---
+
+## GitHub PR Inspection
+
+When asked to review or act on a PR, use these commands in order:
+
+```bash
+# Basic info
+gh pr view <PR_NUMBER>
+
+# Full JSON metadata
+gh api repos/OWNER/REPO/pulls/<PR_NUMBER>
+
+# Changed files
+gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/files
+
+# All comment types (check all three)
+gh api repos/OWNER/REPO/issues/<PR_NUMBER>/comments      # issue-level
+gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/comments       # line-level (most important)
+gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews        # review summaries
+```
+
+PR description template lives at `.github/pull_request_template.md`. Extract ticket/issue IDs from the branch name when needed. For reviewing and acting on a PR that contains bugs, activate @bug-fix.mdc.
+
+---
+
+## Prohibited Actions
+
+- **NEVER write documentation** (README, ADR, JSDoc, inline docs) unless explicitly asked.
+- **NEVER run `pnpm dev`, `npm start`, or equivalent** — assume the dev server is already running.
+- **NEVER suppress TypeScript errors** with `@ts-ignore` or `as any` without a `// TODO(tech-debt):` comment explaining why.
+- For git-specific prohibitions (`git add .`, CHANGELOG, running git commands), see @conventional-commits.mdc — that file is the canonical source.
+
+---
+
+## Rule Suite Map
+
+This project uses four coordinated rules. Each has a single responsibility:
+
+| Rule | Type | Activates when |
+|------|------|----------------|
+| @agent-behavior.mdc | Always Apply | Every session — meta-behavior, execution discipline |
+| @clean-code.mdc | Always Apply | Every session — code quality principles (R.C. Martin) |
+| @bug-fix.mdc | Agent Requested | User reports a bug, error, crash, or stack trace |
+| @conventional-commits.mdc | Agent Requested | User asks for a commit message, push, or PR |
+
+**Precedence:** agent-behavior → clean-code → bug-fix / conventional-commits (context-dependent).
+
+When rules conflict, the more specific rule wins. When uncertain, ask.

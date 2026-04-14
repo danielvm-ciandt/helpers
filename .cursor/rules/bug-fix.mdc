@@ -5,8 +5,7 @@ description: >
   "failing", "exception", "stack trace", "TypeError", "ReferenceError",
   "Cannot read properties", "ENOENT", "500", "404", "build failed",
   "test failed", or any pasted terminal/console output that looks like an error.
-globs:
-alwaysApply: true
+alwaysApply: false
 ---
 
 # /bug — Structured Bug Fix Workflow
@@ -59,8 +58,8 @@ with its heading so the user can follow along.
 
 1. Make the minimum necessary changes — no refactors, no drive-by cleanups.
 2. Follow existing code conventions (check neighboring code for style).
-3. If the fix requires a new dependency, **stop and ask** — the project has a
-   strict rejected-packages list (see `SCAFFOLD-PLAN.md §Rejected Packages`).
+3. If the fix requires a new dependency, **stop and ask** the user before
+   installing anything.
 4. Add inline comments only if the fix is non-obvious. Prefix with
    `// FIX(bug): <short explanation>`.
 
@@ -112,9 +111,9 @@ Choose one or more prevention mechanisms appropriate to the bug:
 
 1. **Code comments** — If the module has a doc-block or README, update it to
    reflect the new behavior.
-2. **SCAFFOLD-PLAN.md** — If the fix changes architectural decisions or adds
-   tooling (e.g., Vitest setup), add a note so future scaffolding stays in
-   sync.
+2. **Architecture notes** — If the fix changes architectural decisions or adds
+   tooling (e.g., Vitest setup), add a note to the project's scaffolding or
+   architecture docs so future decisions stay in sync.
 3. **ADR (optional)** — If the bug revealed a design flaw and the fix involves
    a non-trivial architectural choice, create a lightweight ADR in
    `docs/adr/NNNN-<slug>.md`.
@@ -128,44 +127,10 @@ Choose one or more prevention mechanisms appropriate to the bug:
 
 ### 7a. Build the commit message
 
-Follow the **Conventional Commits 1.0.0** spec
-(`https://www.conventionalcommits.org/en/v1.0.0/`) so that
-**semantic-release** (`@semantic-release/commit-analyzer` with default
-`angular` preset) can parse it correctly.
+Follow the full commit format defined in @conventional-commits.mdc.
 
-**Commit types and how semantic-release maps them:**
-
-| Type | When to use | semantic-release effect |
-|------|-------------|------------------------|
-| `fix` | A bug fix (this is the default for this workflow) | **patch** release |
-| `fix!` | A bug fix that introduces a breaking change | **major** release |
-| `feat` | If the fix required adding a new feature | **minor** release |
-| `feat!` | New feature with breaking change | **major** release |
-
-**Format:**
-```
-<type>(<scope>): <short description>
-
-<body — optional multi-line explanation>
-
-<footer(s) — optional>
-```
-
-**Rules for the message:**
-- `<type>` — almost always `fix` in this workflow.
-- `<scope>` — the module/area affected (e.g., `auth`, `api`, `ui`,
-  `data-grid`, `env`). Use kebab-case. Omit only if the fix is truly
-  project-wide.
-- `<short description>` — imperative mood, lowercase, no period, max 72
-  chars. Describes *what* the fix does, not the symptom.
-  Good: `fix(auth): validate token expiry before refresh`
-  Bad:  `fix(auth): Fixed the bug where tokens were expired.`
-- `<body>` — optional. Explain *why* this change is needed and what the root
-  cause was. Wrap at 100 chars. Separate from subject with a blank line.
-- `<footer>` — optional. Use for:
-  - `BREAKING CHANGE: <description>` (triggers major release)
-  - `Refs: #<issue-number>` or `Closes #<issue-number>`
-  - `Reviewed-by: <name>`
+For bug fixes, the type is almost always `fix`. Use `fix!` only if the fix
+introduces a breaking change (also add `BREAKING CHANGE:` footer).
 
 ### 7b. Output the commands
 
@@ -504,15 +469,6 @@ so the CSV stays single-line per row.
 - **Never suppress errors** with `// @ts-ignore`, `as any`, `try/catch` that
   swallows, or `eslint-disable` unless there is genuinely no better option —
   and if so, add a `// TODO(tech-debt):` comment explaining why.
-- **Never run git commands or gh commands.** You produce the commands; the
-  user runs them. This ensures the developer reviews every staged file,
-  commit message, and issue body before anything is created. (Exception:
-  the agent **does** update `docs/bugs/bug-log.csv` directly as part of
-  Phase 8c.)
-- **Never touch `CHANGELOG.md`.** It is owned by `semantic-release`. Manual
-  edits will be overwritten on the next release.
-- **Always use Conventional Commits.** The commit message must parse correctly
-  by `@semantic-release/commit-analyzer` (angular preset). If in doubt, use
-  `fix(<scope>): <description>`.
-- **Never use `git add .` or `git add -A`.** Always list files explicitly.
-- **Ask before adding dependencies.** The project has a strict allow-list.
+
+> All git, CHANGELOG, and dependency rules are enforced by @agent-behavior.mdc
+> and @conventional-commits.mdc — see those files for the canonical list.

@@ -1,6 +1,5 @@
 ---
 description: "Clean Code standards (R.C. Martin): naming, functions, tests, error handling, classes, and smell catalog. Apply when writing, reviewing, or refactoring any code."
-globs:
 alwaysApply: true
 ---
 
@@ -21,43 +20,7 @@ This is the standard applied when writing, reviewing, or refactoring any code.
 
 ---
 
-## 1. Workflow
-
-Every non-trivial change follows these phases in order. Do not skip or collapse them.
-
-### Specify
-- Restate the intent in one paragraph of plain prose before touching any code.
-- List inputs, outputs, invariants, error modes, and explicit non-goals.
-- Write acceptance criteria as testable statements: *Given … When … Then …*
-- Flag every ambiguity. Do not guess.
-
-### Design
-- Draw the module boundary first: public surface, private internals, dependency direction.
-- Choose the simplest data structures that satisfy the spec. Resist frameworks until they earn their place.
-- Apply SRP before writing a single class: one class, one reason to change.
-- Name every concept before coding it.
-
-### Test First (Red → Green → Refactor)
-- Write the failing test before any production code — the Three Laws of TDD.
-- One concept per test. Tests are the living specification.
-- Cover boundary conditions before implementing the happy path.
-
-### Implement
-- Make it work. Then make it right. Then, only if measured, make it fast. Never simultaneously.
-- Keep the build green on every save.
-
-### Refactor
-- After green: collapse duplication, rename for clarity, shorten functions, restore the step-down reading order.
-- Run the full test suite after every structural change.
-
-### Review Against the Spec
-- Walk every acceptance criterion and cite the test that proves it.
-- Name what was deliberately *not* built and why.
-- Surface any new tech debt created and file it.
-
----
-
-## 2. Names (Chapter 2)
+## 1. Names (Chapter 2)
 
 - **Intention-revealing.** A name answers: what is this, why does it exist, how is it used. `elapsedTimeInDays`, not `d`.
 - **No disinformation.** Do not call a linked-list a `List` if it isn't one. Never use `l`, `O`, or `I` as identifiers.
@@ -72,7 +35,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 3. Functions (Chapter 3)
+## 2. Functions (Chapter 3)
 
 - **Small. Then smaller.** Target ≤ 20 lines; aim for 4–8.
 - **Do one thing.** A function does one thing when no further function can be extracted from it at a meaningfully lower level of abstraction.
@@ -87,7 +50,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 4. Comments (Chapter 4)
+## 3. Comments (Chapter 4)
 
 **The rule:** every comment is an apology for code that fails to express itself. Fix the code first.
 
@@ -97,7 +60,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 5. Formatting (Chapter 5)
+## 4. Formatting (Chapter 5)
 
 - **Newspaper metaphor.** High-level purpose first; detail accumulates as you scroll down.
 - **Vertical openness between concepts.** Blank lines separate distinct thoughts.
@@ -108,7 +71,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 6. Objects and Data Structures (Chapters 6 & 8)
+## 5. Objects and Data Structures (Chapters 6 & 8)
 
 - **Objects** hide data and expose behavior. **Data structures** expose data and have no meaningful behavior. Do not build hybrids.
 - **Law of Demeter.** Do not call methods on objects *returned* by other calls (`a.getB().getC().doSomething()` violates this).
@@ -116,7 +79,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 7. Error Handling (Chapter 7)
+## 6. Error Handling (Chapter 7)
 
 - **Exceptions over return codes.**
 - **Write the try-catch first.** Define the scope of failure before writing the happy path.
@@ -126,7 +89,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 8. Unit Tests (Chapter 9)
+## 7. Unit Tests (Chapter 9)
 
 **The Three Laws of TDD:**
 1. Do not write production code without a failing test.
@@ -143,7 +106,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 9. Classes (Chapter 10)
+## 8. Classes (Chapter 10)
 
 - **Small.** Measure by responsibilities, not lines. If you describe the class using "and", split it.
 - **Single Responsibility Principle.** One class, one reason to change.
@@ -153,7 +116,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 10. Systems (Chapter 11)
+## 9. Systems (Chapter 11)
 
 - **Separate construction from use.** The object graph is built in `main` or a DI container; the rest of the system receives dependencies.
 - **Postpone decisions to the last responsible moment.**
@@ -161,7 +124,7 @@ Every non-trivial change follows these phases in order. Do not skip or collapse 
 
 ---
 
-## 11. Emergence — Kent Beck's Four Rules (Chapter 12)
+## 10. Emergence — Kent Beck's Four Rules (Chapter 12)
 
 A design is clean enough when, in priority order, it:
 
@@ -172,7 +135,7 @@ A design is clean enough when, in priority order, it:
 
 ---
 
-## 12. Code Smells — Full Catalog (Chapter 17)
+## 11. Code Smells — Full Catalog (Chapter 17)
 
 ### Comments
 | Code | Smell |
@@ -257,7 +220,7 @@ A design is clean enough when, in priority order, it:
 
 ---
 
-## 13. Definition of Done
+## 12. Definition of Done
 
 Every change is complete only when all of the following are true:
 
