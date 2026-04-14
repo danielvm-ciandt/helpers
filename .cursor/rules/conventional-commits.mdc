@@ -1,0 +1,233 @@
+---
+description: >
+  CONVENTIONAL COMMITS COMMIT MESSAGE GENERATOR — Trigger when the user asks
+  for a commit message, says "commit", "push", "what should I commit", "write
+  the commit", "apply changes", "stage and commit", "update the repo", "run
+  CI/CD", "create a PR", or any variation of finalizing work and updating the
+  repository. Also trigger when the user finishes a task and needs to git commit.
+globs:
+alwaysApply: false
+---
+
+# Conventional Commits Message Generator
+
+You are a senior engineer who writes **precise, semantic-release-compatible**
+commit messages following [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
+
+When the user asks for a commit message, a push, or wants to update the repo:
+
+---
+
+## Step 1 · Inspect What Changed
+
+Run these commands to understand the full delta:
+
+```bash
+git status
+git diff --staged
+git diff
+```
+
+Also check recent commit history to match the project's style:
+
+```bash
+git log --oneline -10
+```
+
+---
+
+## Step 2 · Choose the Commit Type
+
+Pick exactly **one** type from the table. This directly controls what
+`semantic-release` (angular preset) publishes:
+
+| Type | When to use | semantic-release effect |
+|------|-------------|-------------------------|
+| `feat` | New feature visible to users or other packages | **minor** bump (e.g. 0.1.0 → 0.2.0) |
+| `fix` | Bug fix; corrects unintended behavior | **patch** bump (e.g. 0.1.0 → 0.1.1) |
+| `perf` | Performance improvement with no API/behavior change | **patch** bump |
+| `revert` | Reverts a previous commit | **patch** bump |
+| `docs` | Documentation only — no code changes | no release |
+| `style` | Formatting, whitespace, semicolons — no logic | no release |
+| `refactor` | Code restructuring — no new feature, no bug fix | no release |
+| `test` | Adding or fixing tests — no production code | no release |
+| `build` | Build system, dependencies, tooling (webpack, vite, pnpm) | no release |
+| `ci` | CI/CD config changes (GitHub Actions, workflows) | no release |
+| `chore` | Routine tasks — version bumps, scaffold updates | no release |
+
+**Breaking change** in any type: append `!` after type/scope AND add
+`BREAKING CHANGE: <description>` footer → triggers **major** bump.
+
+---
+
+## Step 3 · Determine the Scope
+
+The scope is **one kebab-case word** naming the module, package, or domain area
+changed. Use these mappings for this repo:
+
+| Files / area changed | Scope |
+|----------------------|-------|
+| `server/` routes, middleware | `api` |
+| `server/` auth logic | `auth` |
+| `server/` services or orchestration | `services` |
+| `ui/` components, pages | `ui` |
+| `ui/` routing | `routes` |
+| `packages/db/` schema, migrations | `db` |
+| `packages/shared/` types, validators | `shared` |
+| `packages/adapters/` | `adapters` |
+| `packages/plugins/` | `plugins` |
+| `.github/workflows/` | `ci` |
+| `package.json`, `pnpm-lock.yaml`, `tsconfig` | `build` |
+| `.releaserc`, `semantic-release` config | `release` |
+| `doc/`, `README` | `docs` |
+| Entire codebase / cross-cutting | *(omit scope)* |
+
+---
+
+## Step 4 · Write the Message
+
+### Format
+
+```
+<type>(<scope>): <subject>
+
+[body]
+
+[footer(s)]
+```
+
+### Subject line rules
+
+- Imperative mood: "add", "fix", "remove", "update" — not "added", "fixes"
+- Lowercase first letter
+- No period at the end
+- Max **72 characters** total (type + scope + subject)
+- Describe **what** the commit does, not **why** (the body handles why)
+
+✅ Good: `feat(auth): add Neon Auth session resolver with feature flag`  
+❌ Bad:  `feat(auth): Added the new Neon authentication session resolver feature.`
+
+### Body rules (optional but encouraged for non-trivial changes)
+
+- Blank line between subject and body
+- Explain **why** this change is needed and what problem it solves
+- Wrap at **100 characters** per line
+- Use present tense
+
+### Footer rules
+
+| Situation | Footer |
+|-----------|--------|
+| Breaking change | `BREAKING CHANGE: <what breaks and migration path>` |
+| Closes a GitHub issue | `Closes #<number>` or `Refs #<number>` |
+| Reviewed by | `Reviewed-by: <name>` |
+
+---
+
+## Step 5 · Output the Git Commands
+
+Produce a fenced code block labeled **`GIT COMMANDS`** ready to copy-paste. Each command in a separate block.
+**Never** use `git add .` or `git add -A` — always list files explicitly.
+
+# ── 1. Review what changed ────────────────────────────
+```bash
+git status
+git diff
+```
+# ── 2. Stage only the relevant files ─────────────────
+```bash
+git add <file1> <file2> ...
+```
+# ── 3. Commit ─────────────────────────────────────────
+```bash
+git commit -m "<type>(<scope>): <subject>" \
+  -m "<body — explain why, wrap at 100 chars>" \
+  -m "<footer — Closes #N / BREAKING CHANGE: ... (omit if none)>"
+```
+# ── 4. Push to trigger CI and semantic-release ────────
+```bash
+git push origin <branch>
+```
+
+Omit `-m` flags for body/footer when they are not needed.
+
+---
+
+## Step 6 · Determine Release Impact
+
+After crafting the message, state clearly:
+
+> **Release impact:** `patch` | `minor` | `major` | `no release`  
+> **Why:** (one sentence linking the type/breaking-change to semantic-release)
+
+---
+
+## Examples
+
+### Simple patch (bug fix)
+
+```bash
+git add server/src/routes/auth.ts
+git commit -m "fix(auth): handle missing session token on agent requests"
+git push origin main
+```
+
+> **Release impact:** `patch` — `fix` type triggers a patch version bump via semantic-release.
+
+---
+
+### Feature with body (minor release)
+
+```bash
+git add packages/db/src/schema/companies.ts packages/shared/src/types/company.ts server/src/services/company.ts
+git commit \
+  -m "feat(db): add portfolio hierarchy tables for clients and teams" \
+  -m "Implements the Client → Team relation needed for Phase 5.
+The schema introduces clients, teams, and team_members tables,
+all scoped to a company to satisfy multi-tenant isolation." \
+  -m "Closes #42"
+git push origin feat/portfolio-hierarchy
+```
+
+> **Release impact:** `minor` — new feature expands the public API surface.
+
+---
+
+### Breaking change (major release)
+
+```bash
+git add packages/shared/src/api-paths.ts server/src/routes/index.ts
+git commit \
+  -m "feat(api)!: rename /api/projects to /api/engagements for CPS alignment" \
+  -m "All project-level endpoints now live under /api/engagements to match
+the CPS framework terminology introduced in Phase 6." \
+  -m "BREAKING CHANGE: clients calling /api/projects must migrate to /api/engagements.
+No redirect shim is provided."
+git push origin feat/cps-endpoints
+```
+
+> **Release impact:** `major` — breaking change forces a major version bump.
+
+---
+
+### CI/tooling only (no release)
+
+```bash
+git add .github/workflows/ci.yml
+git commit -m "ci: add Node 24 matrix to GitHub Actions workflow"
+git push origin feat/node-24
+```
+
+> **Release impact:** `no release` — `ci` type is not picked up by semantic-release.
+
+---
+
+## Hard Rules
+
+1. **Never use `git add .` or `git add -A`** — list files explicitly.
+2. **Never run `git` or `gh` commands yourself** — produce them for the user to run.
+3. **Never touch `CHANGELOG.md`** — it is auto-generated by `@semantic-release/changelog`.
+4. **Scope is required** unless the change is truly cross-cutting.
+5. **One logical change per commit** — if the diff contains multiple unrelated changes, produce multiple commit commands, each staging only its own files.
+6. **Breaking changes need both `!` and the footer** — one alone is not enough for semantic-release to trigger a major bump.
+7. **Ask before adding dependencies** — the project uses pnpm and has a controlled allow-list.
